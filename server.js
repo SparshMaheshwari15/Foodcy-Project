@@ -15,7 +15,7 @@ const io = new Server(server, {
 });
 
 
-// const connectDb = require("./dbConnection.js");
+const connectDb = require("./dbConnection.js");
 const Order = require("./models/order.js");
 
 
@@ -50,29 +50,6 @@ app.post('/create-order', async (req, res) => {
 });
 
 // Update Order Status
-// app.post('/update-order', async (req, res) => {
-//     const { billNo, status } = req.body;
-
-//     try {
-//         const order = await Order.findOne({ billNo });
-
-//         if (!order) {
-//             return res.status(404).json({ success: false, message: "Order not found" });
-//         }
-
-//         order.status = status;
-//         await order.save();
-
-//         // Emit WebSocket event
-//         io.emit('orderUpdate', { billNo, status });
-
-//         res.json({ success: true, message: "Order updated successfully", billNo, status });
-//     } catch (error) {
-//         console.error("Error updating order:", error);
-//         res.status(500).json({ success: false, message: "Server error" });
-//     }
-// });
-
 app.post('/update-order', async (req, res) => {
     const { billNo, status } = req.body;
     const order = await Order.findOne({ billNo });
@@ -81,7 +58,7 @@ app.post('/update-order', async (req, res) => {
         order.status = status;
         await order.save();
 
-        // ✅ Emit WebSocket update to all clients
+        // Emit WebSocket update to all clients
         io.emit('orderUpdate', { billNo, status });
     }
 
@@ -109,157 +86,33 @@ app.get('/init', async (req, res) => {
 });
 
 // WebSocket Connection
-// io.on('connection', (socket) => {
-//     console.log('A user connected');
-
-//     // Handle request for current status
-//     socket.on('requestStatus', async (data) => {
-//         const order = await Order.findOne({ billNo: data.billNo });
-//         if (order) {
-//             socket.emit('currentStatus', { billNo: order.billNo, status: order.status });
-//         } else {
-//             socket.emit('currentStatus', { billNo: data.billNo, status: "Not Found" });
-//         }
-//     });
-
-//     socket.on('disconnect', () => {
-//         console.log('A user disconnected');
-//     });
-// });
-
-// io.on('connection', (socket) => {
-//     console.log('A user connected');
-
-//     // Listen for order updates from admin
-//     socket.on('updateOrder', async (data) => {
-//         try {
-//             const { billNo, status } = data;
-//             const order = await Order.findOne({ billNo });
-
-//             if (order) {
-//                 order.status = status;
-//                 await order.save();
-
-//                 // ✅ Broadcast update to all clients
-//                 io.emit('orderUpdate', { billNo, status });
-
-//                 console.log(`🔄 Order ${billNo} updated to ${status}`);
-//             }
-//         } catch (error) {
-//             console.error("⚠️ Error updating order:", error);
-//         }
-//     });
-
-//     // Handle status request from users
-//     socket.on('requestStatus', async (data) => {
-//         const order = await Order.findOne({ billNo: data.billNo });
-//         if (order) {
-//             socket.emit('currentStatus', { billNo: order.billNo, status: order.status });
-//         } else {
-//             socket.emit('currentStatus', { billNo: data.billNo, status: "Not Found" });
-//         }
-//     });
-
-//     socket.on('disconnect', () => {
-//         console.log('A user disconnected');
-//     });
-// });
-
-// io.on('connection', (socket) => {
-//     console.log('A user connected');
-
-//     // Listen for admin updates
-//     socket.on('updateOrder', async (data) => {
-//         try {
-//             const { billNo, status } = data;
-//             const order = await Order.findOne({ billNo });
-
-//             if (order) {
-//                 order.status = status;
-//                 await order.save();
-
-//                 // ✅ Broadcast update to all clients
-//                 io.emit('orderUpdate', { billNo, status });
-//                 console.log(`📢 Broadcasted: Order ${billNo} updated to ${status}`);
-//             }
-//         } catch (error) {
-//             console.error("⚠️ Error updating order:", error);
-//         }
-//     });
-
-//     // User requests status update
-//     socket.on('requestStatus', async (data) => {
-//         const order = await Order.findOne({ billNo: data.billNo });
-
-//         if (order) {
-//             socket.emit('currentStatus', { billNo: order.billNo, status: order.status });
-//             console.log(`📨 Sent status for ${order.billNo}: ${order.status}`);
-//         } else {
-//             socket.emit('currentStatus', { billNo: data.billNo, status: "Not Found" });
-//         }
-//     });
-
-//     socket.on('disconnect', () => {
-//         console.log('A user disconnected');
-//     });
-// });
-
-// io.on('connection', (socket) => {
-//     console.log('A user connected');
-
-//     // Listen for admin updates
-//     socket.on('updateOrder', async (data) => {
-//         try {
-//             const { billNo, status } = data;
-//             const order = await Order.findOne({ billNo });
-
-//             if (order) {
-//                 order.status = status;
-//                 await order.save();
-
-//                 // ✅ Log the broadcast event
-//                 console.log(`📢 Emitting: Order ${billNo} updated to ${status}`);
-
-//                 // ✅ Send update to all connected clients
-//                 io.emit('orderUpdate', { billNo, status });
-//             }
-//         } catch (error) {
-//             console.error("⚠️ Error updating order:", error);
-//         }
-//     });
-
-//     socket.on('disconnect', () => {
-//         console.log('A user disconnected');
-//     });
-// });
-
 io.on("connection", (socket) => {
     console.log("A user connected");
 
-    // ✅ User requests the current order status
+    // User requests the current order status
     socket.on("requestStatus", async (data) => {
         try {
             console.log(`🔎 User requested status for Order ${data.billNo}`);
             const order = await Order.findOne({ billNo: data.billNo });
 
             if (order) {
-                console.log(`📢 Sending current status: Order ${order.billNo} -> ${order.status}`);
+                console.log(`Sending current status: Order ${order.billNo} -> ${order.status}`);
                 socket.emit("currentStatus", { billNo: order.billNo, status: order.status });
             } else {
-                console.log(`⚠️ Order ${data.billNo} not found`);
+                console.log(`Order ${data.billNo} not found`);
                 socket.emit("currentStatus", { billNo: data.billNo, status: "Not Found" });
             }
         } catch (error) {
-            console.error("❌ Error fetching order status:", error);
+            console.error("Error fetching order status:", error);
         }
     });
 
-    // ✅ Admin updates the order status
+    // Admin updates the order status
     socket.on("updateOrderStatus", async (data) => {
         try {
             const { billNo, status } = data;
 
-            // ✅ Update the order in the database
+            // Update the order in the database
             const updatedOrder = await Order.findOneAndUpdate(
                 { billNo },
                 { status },
@@ -267,12 +120,12 @@ io.on("connection", (socket) => {
             );
 
             if (!updatedOrder) {
-                console.log(`⚠️ Order ${billNo} not found!`);
+                console.log(`Order ${billNo} not found!`);
                 socket.emit("updateFailed", { message: "Order not found" });
                 return;
             }
 
-            console.log(`📢 Order ${billNo} updated to ${status}`);
+            console.log(`Order ${billNo} updated to ${status}`);
 
             // ✅ Emit the update to all connected users
             io.emit("orderUpdate", { billNo, status });
@@ -281,7 +134,7 @@ io.on("connection", (socket) => {
             socket.emit("updateSuccess", { billNo, status });
 
         } catch (error) {
-            console.error("❌ Error updating order:", error);
+            console.error("Error updating order:", error);
             socket.emit("updateFailed", { message: "Failed to update order" });
         }
     });

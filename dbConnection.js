@@ -1,6 +1,7 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 
-const dbUrl = "mongodb://127.0.0.1:27017/foodcy_orders";
+const dbUrl = process.env.LOCALDB_URL;
 
 console.log(dbUrl)
 main()
