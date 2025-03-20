@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get('/', (req, res) => {
-    res.render('index'); // User enters bill number
+    res.render('user'); // User enters bill number
 });
 
 app.get('/admin', async (req, res) => {
