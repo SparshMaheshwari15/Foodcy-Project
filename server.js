@@ -36,18 +36,18 @@ app.get('/admin', async (req, res) => {
 });
 
 // Create Order - Prevents Duplicates
-app.post('/create-order', async (req, res) => {
-    const { billNo } = req.body;
+// app.post('/create-order', async (req, res) => {
+//     const { billNo } = req.body;
 
-    const existingOrder = await Order.findOne({ billNo });
-    if (!existingOrder) {
-        const newOrder = new Order({ billNo });
-        await newOrder.save();
-        io.emit('orderUpdate', { billNo, status: 'Pending' });
-    }
+//     const existingOrder = await Order.findOne({ billNo });
+//     if (!existingOrder) {
+//         const newOrder = new Order({ billNo });
+//         await newOrder.save();
+//         io.emit('orderUpdate', { billNo, status: 'Pending' });
+//     }
 
-    res.redirect('/admin');
-});
+//     res.redirect('/admin');
+// });
 
 // Update Order Status
 app.post('/update-order', async (req, res) => {
@@ -73,12 +73,12 @@ app.get('/init', async (req, res) => {
         console.log('Database cleared.');
 
         const orders = [];
-        for (let i = 1; i <= 15; i++) {
+        for (let i = 1; i <= 30; i++) {
             orders.push({ billNo: i.toString(), status: 'Pending' });
         }
         await Order.insertMany(orders);
 
-        res.send('Database cleared and reinitialized with orders 1-15.');
+        res.send('Database cleared and reinitialized with orders 1-30.');
     } catch (error) {
         console.error('Error initializing database:', error);
         res.status(500).send('Error initializing database');
@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
     // User requests the current order status
     socket.on("requestStatus", async (data) => {
         try {
-            console.log(`🔎 User requested status for Order ${data.billNo}`);
+            console.log(`User requested status for Order ${data.billNo}`);
             const order = await Order.findOne({ billNo: data.billNo });
 
             if (order) {
