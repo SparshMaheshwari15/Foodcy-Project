@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Admin Login Page
 router.get("/login", (req, res) => {
-    res.render("login"); // Create a login.ejs file
+    res.render("login"); 
 });
 
 // Handle Login
@@ -21,20 +21,20 @@ router.get("/logout", (req, res) => {
     req.logout((err) => {
         if (err) return next(err);
         req.flash("success_msg", "You are logged out");
-        res.redirect("/login");
+        res.redirect("/auth/login");
     });
 });
 
 // Register Admin (Only for first-time setup)
-router.get("/register", async (req, res) => {
-    const existingAdmin = await User.findOne({ username: "admin" });
-    if (!existingAdmin) {
-        const newUser = new User({ username: "admin", email: "admin@example.com" });
-        await User.register(newUser, "admin");
-        res.send("Admin created! Now go to /login to sign in.");
-    } else {
-        res.send("Admin already exists!");
-    }
-});
+// router.get("/register", async (req, res) => {
+//     const existingAdmin = await User.findOne({ username: "admin" });
+//     if (!existingAdmin) {
+//         const newUser = new User({ username: "admin", email: "admin@example.com" });
+//         await User.register(newUser, "admin");
+//         res.send("Admin created! Now go to /login to sign in.");
+//     } else {
+//         res.send("Admin already exists!");
+//     }
+// });
 
 module.exports = router;

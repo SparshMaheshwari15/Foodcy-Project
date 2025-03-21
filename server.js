@@ -2,6 +2,7 @@ if (process.env.NODE_ENV != "production") {
     require("dotenv").config();
 }
 const express = require('express');
+const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
@@ -9,19 +10,16 @@ const mongoose = require('mongoose');
 const session = require("express-session");
 const passport = require("passport");
 const flash = require("connect-flash");
-const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     pingInterval: 25000, // Send a ping every 25 seconds
     pingTimeout: 60000,  // Wait 60 seconds before closing connection
 });
-// const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
 
 const connectDb = require("./dbConnection.js");
 const Order = require("./models/models.order.js");
-const { ensureAuthenticated } = require("./middleware/middleware.auth.js");
 
 
 // Middleware
@@ -38,7 +36,7 @@ app.use(
             mongoUrl: process.env.LOCALDB_URL, // Use your MongoDB connection string
             collectionName: "sessions",
         }),
-        cookie: { maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+        cookie: { maxAge: 1000 * 60 * 60 * 3 }, // 1 day
     })
 );
 
@@ -97,12 +95,8 @@ app.post('/update-order', async (req, res) => {
 });
 
 
-// Route to Initialize DB with 1-999 Orders
-// app.get('/init', ensureAuthenticated, async (req, res) => {
-// });
-
-
 // WebSocket Connection
+
 io.on("connection", (socket) => {
     console.log("A user connected");
 

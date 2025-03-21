@@ -10,19 +10,27 @@ router.get("/", ensureAuthenticated, (req, res) => {
 });
 
 router.post("/", ensureAuthenticated, async (req, res) => {
-    const { password } = req.body;
+    const { password, upperLimit } = req.body;
+    if (!upperLimit) {
+        req.flash("No upper limit");
+        return res.send("No upper limit")
+    }
+    if (!password) {
+        req.flash("No password");
+        return res.send("No password")
+    }
     if (password === INIT_PASSWORD) {
         try {
             await Order.deleteMany({});
             console.log('Database cleared.');
 
             const orders = [];
-            for (let i = 1; i <= 30; i++) {
+            for (let i = 1; i <= upperLimit; i++) {
                 orders.push({ billNo: i.toString(), status: 'Pending' });
             }
             await Order.insertMany(orders);
 
-            res.send('Database cleared and reinitialized with orders 1-30.');
+            res.send('Database cleared and reinitialized with orders 1-' + upperLimit);
         } catch (error) {
             console.error('Error initializing database:', error);
             res.status(500).send('Error initializing database');
