@@ -15,7 +15,7 @@ const io = new Server(server, {
     pingInterval: 25000, // Send a ping every 25 seconds
     pingTimeout: 60000,  // Wait 60 seconds before closing connection
 });
-const session = require("express-session");
+// const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
 
