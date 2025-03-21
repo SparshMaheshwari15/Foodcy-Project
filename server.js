@@ -6,7 +6,9 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const mongoose = require('mongoose');
-
+const session = require("express-session");
+const passport = require("passport");
+const flash = require("connect-flash");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -17,6 +19,7 @@ const io = new Server(server, {
 
 const connectDb = require("./dbConnection.js");
 const Order = require("./models/models.order.js");
+const { ensureAuthenticated } = require("./middleware/middleware.auth.js");
 
 
 // Middleware
@@ -24,16 +27,35 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+    secret: "your_secret_key",
+    resave: false,
+    saveUninitialized: true,
+}));
 
+app.use(flash());
+// Passport Configuration
+require("./config/passport")(app);
+
+// Global Flash Messages
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash("success_msg");
+    res.locals.error_msg = req.flash("error_msg");
+    res.locals.error = req.flash("error");
+    next();
+});
 // Routes
 app.get('/', (req, res) => {
     res.render('user'); // User enters bill number
 });
 
-app.get('/admin', async (req, res) => {
-    const orders = await Order.find();
-    res.render('admin', { orders });
-});
+// app.get('/admin', async (req, res) => {
+//     const orders = await Order.find();
+//     res.render('admin', { orders });
+// });
+app.use("/admin", require("./routes/routes.admin.js"));
+app.use("/auth", require("./routes/routes.auth.js"));
+app.use("/init", require("./routes/routes.init.js"));
 
 // Create Order - Prevents Duplicates
 // app.post('/create-order', async (req, res) => {
@@ -67,23 +89,9 @@ app.post('/update-order', async (req, res) => {
 
 
 // Route to Initialize DB with 1-999 Orders
-app.get('/init', async (req, res) => {
-    try {
-        await Order.deleteMany({});
-        console.log('Database cleared.');
+// app.get('/init', ensureAuthenticated, async (req, res) => {
+// });
 
-        const orders = [];
-        for (let i = 1; i <= 30; i++) {
-            orders.push({ billNo: i.toString(), status: 'Pending' });
-        }
-        await Order.insertMany(orders);
-
-        res.send('Database cleared and reinitialized with orders 1-30.');
-    } catch (error) {
-        console.error('Error initializing database:', error);
-        res.status(500).send('Error initializing database');
-    }
-});
 
 // WebSocket Connection
 io.on("connection", (socket) => {
