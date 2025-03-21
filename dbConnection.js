@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const dbUrl = process.env.LOCALDB_URL;
 
-console.log(dbUrl)
+// console.log(dbUrl)
 main()
     .then((res) => {
         console.log("Connection Successful to DB");
