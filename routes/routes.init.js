@@ -27,7 +27,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
             console.error('Error initializing database:', error);
             res.status(500).send('Error initializing database');
         }
-        res.send("Init Successful!");
+        // res.send("Init Successful!");
     } else {
         res.status(403).send("Incorrect password!");
     }

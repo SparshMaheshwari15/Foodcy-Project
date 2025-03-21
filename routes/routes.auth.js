@@ -12,7 +12,7 @@ router.get("/login", (req, res) => {
 // Handle Login
 router.post("/login", passport.authenticate("local", {
     successRedirect: "/admin",
-    failureRedirect: "/login",
+    failureRedirect: "/auth/login",
     failureFlash: true,
 }));
 
