@@ -15,6 +15,8 @@ const io = new Server(server, {
     pingInterval: 25000, // Send a ping every 25 seconds
     pingTimeout: 60000,  // Wait 60 seconds before closing connection
 });
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
 
 
 const connectDb = require("./dbConnection.js");
@@ -27,11 +29,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({
-    secret: "your_secret_key",
-    resave: false,
-    saveUninitialized: true,
-}));
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET_KEY,
+        resave: false,
+        saveUninitialized: true,
+        store: MongoStore.create({
+            mongoUrl: process.env.LOCALDB_URL, // Use your MongoDB connection string
+            collectionName: "sessions",
+        }),
+        cookie: { maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+    })
+);
 
 app.use(flash());
 // Passport Configuration

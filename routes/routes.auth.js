@@ -26,15 +26,15 @@ router.get("/logout", (req, res) => {
 });
 
 // Register Admin (Only for first-time setup)
-// router.get("/register", async (req, res) => {
-//     const existingAdmin = await User.findOne({ username: "admin" });
-//     if (!existingAdmin) {
-//         const newUser = new User({ username: "admin", email: "admin@example.com" });
-//         await User.register(newUser, "admin");
-//         res.send("Admin created! Now go to /login to sign in.");
-//     } else {
-//         res.send("Admin already exists!");
-//     }
-// });
+router.get("/register", async (req, res) => {
+    const existingAdmin = await User.findOne({ username: "admin" });
+    if (!existingAdmin) {
+        const newUser = new User({ username: "admin", email: "admin@example.com" });
+        await User.register(newUser, "admin");
+        res.send("Admin created! Now go to /login to sign in.");
+    } else {
+        res.send("Admin already exists!");
+    }
+});
 
 module.exports = router;
