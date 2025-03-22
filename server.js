@@ -56,10 +56,6 @@ app.get('/', (req, res) => {
     res.render('user'); // User enters bill number
 });
 
-// app.get('/admin', async (req, res) => {
-//     const orders = await Order.find();
-//     res.render('admin', { orders });
-// });
 app.use("/admin", require("./routes/routes.admin.js"));
 app.use("/auth", require("./routes/routes.auth.js"));
 app.use("/init", require("./routes/routes.init.js"));
@@ -83,15 +79,26 @@ app.post('/update-order', async (req, res) => {
     const { billNo, status } = req.body;
     const order = await Order.findOne({ billNo });
 
-    if (order) {
+    if (!order) {
+        req.flash("Enter correct order no.");
+        return res.send("Enter correct order no.")
+    }
+    if (status !== "Pending" || status !== "Arrived" || status !== "Delivered") {
+        req.flash("Enter correct status of the order no.", order);
+        return res.send("Enter correct status of the order no.")
+    }
+    else if (order) {
         order.status = status;
         await order.save();
 
         // Emit WebSocket update to all clients
         io.emit('orderUpdate', { billNo, status });
+        return res.send("Updating done");
+    }
+    else {
+        res.send("Some error occured");
     }
 
-    res.sendStatus(200); // Respond to confirm the update
 });
 
 
