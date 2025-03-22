@@ -78,14 +78,17 @@ app.use("/init", require("./routes/routes.init.js"));
 app.post('/update-order', async (req, res) => {
     const { billNo, status } = req.body;
     const order = await Order.findOne({ billNo });
-
     if (!order) {
         req.flash("Enter correct order no.");
         return res.send("Enter correct order no.")
     }
-    if (status !== "Pending" || status !== "Arrived" || status !== "Delivered") {
-        req.flash("Enter correct status of the order no.", order);
-        return res.send("Enter correct status of the order no.")
+    const newStatus = status?.trim() || "";
+    console.log(newStatus);
+
+    const validStatuses = ["Pending", "Arrived", "Delivered"];
+    if (!validStatuses.includes(newStatus)) {
+        req.flash("error", "Enter correct status of the order no.", order);
+        return res.send("Enter correct status of the order no.");
     }
     else if (order) {
         order.status = status;
