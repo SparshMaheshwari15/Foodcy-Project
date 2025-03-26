@@ -15,7 +15,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
         req.flash("No upper limit");
         return res.send("No upper limit")
     }
-    if (upperLimit<1) {
+    if (upperLimit < 5 || upperLimit > 10000) {
         req.flash("Wrong upper limit");
         return res.send("Wrong upper limit")
     }
