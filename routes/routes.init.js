@@ -29,15 +29,17 @@ router.post("/", ensureAuthenticated, async (req, res) => {
                 orders.push({ billNo: i.toString(), status: 'Pending' });
             }
             await Order.insertMany(orders);
-
-            res.send('Database cleared and reinitialized with orders 1-' + upperLimit);
+            res.render("initSucc.ejs", { upperLimit });
+            // res.send('Database cleared and reinitialized with orders 1-' + upperLimit);
         } catch (error) {
             console.error('Error initializing database:', error);
-            res.status(500).send('Error initializing database');
+            res.status(500).render("initFail", { errorMessage: error.message });
+            // res.status(500).send('Error initializing database');
         }
         // res.send("Init Successful!");
     } else {
-        res.status(403).send("Incorrect password!");
+        res.status(500).render("initFail", { errorMessage: "Incorrect password!" });
+        // res.status(403).send("Incorrect password!");
     }
 });
 
