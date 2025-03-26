@@ -13,8 +13,8 @@
             <div class="alert alert-danger"><%= error_msg %></div>
         <% } %>
         <form action="/auth/login" method="POST" class="mt-4">
-            <input type="text" name="username" class="form-control mb-3" placeholder="Username" required>
-            <input type="password" name="password" class="form-control mb-3" placeholder="Password" required>
+            <input type="text" name="username" class="form-control mb-3" placeholder="Username" required value="admin">
+            <input type="password" name="password" class="form-control mb-3" placeholder="Password" required value="admin">
             <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
     </div>
