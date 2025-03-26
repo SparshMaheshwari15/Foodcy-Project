@@ -38,15 +38,12 @@
                             <%= order.status %>
                         </td>
                         <td>
-                            <select name="status" class="form-select"
-                                onchange="updateOrder('<%= order.billNo %>', this.value)">
-                                <option value="Pending" <%=order.status==='Pending' ? 'selected' : '' %>>Pending
-                                </option>
-                                <option value="Arrived" <%=order.status==='Arrived' ? 'selected' : '' %>>Arrived
-                                </option>
-                                <option value="Delivered" <%=order.status==='Delivered' ? 'selected' : '' %>>Delivered
-                                </option>
-                            </select>
+                            <button id="btn-<%= order.billNo %>"
+                                class="btn <%= order.status === 'Arrived' ? 'btn-secondary' : 'btn-primary' %>"
+                                onclick="updateOrder('<%= order.billNo %>')" <%=order.status==='Arrived' ? 'disabled'
+                                : '' %>>
+                                Mark as Arrived
+                            </button>
                         </td>
                     </tr>
                     <% }) %>
@@ -69,41 +66,42 @@
         // Update UI in real-time when an order is updated
         socket.on('orderUpdate', (data) => {
             let statusElement = document.getElementById(`status-${data.billNo}`);
-            if (statusElement) {
+            let buttonElement = document.getElementById(`btn-${data.billNo}`);
+
+            if (statusElement && buttonElement) {
                 statusElement.innerText = data.status;
+                buttonElement.disabled = true;
+                buttonElement.classList.remove("btn-primary");
+                buttonElement.classList.add("btn-secondary"); // Change button color
             }
         });
 
+        function updateOrder(billNo) {
+            socket.emit("updateOrderStatus", { billNo, status: "Arrived" });
 
-        function updateOrder(billNo, status) {
-            socket.emit("updateOrderStatus", { billNo, status });
-
-            // ✅ Listen for success confirmation
             socket.on("updateSuccess", (data) => {
-                console.log(`✅ Order ${data.billNo} successfully updated to ${data.status}`);
-                // alert(`Order ${data.billNo} updated to ${data.status}`);
+                console.log(`✅ Order ${data.billNo} successfully updated to Arrived`);
+                document.getElementById(`status-${data.billNo}`).innerText = "Arrived";
+
+                let button = document.getElementById(`btn-${data.billNo}`);
+                button.disabled = true;
+                button.classList.remove("btn-primary");
+                button.classList.add("btn-secondary"); // Change button color
             });
 
-            // ❌ Listen for failure response
             socket.on("updateFailed", (data) => {
                 console.error("❌ Update failed:", data.message);
                 alert("Failed to update order. Please try again.");
             });
         }
 
-
-        // Search functionality
         document.getElementById('searchInput').addEventListener('input', function () {
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll('.order-row');
 
             rows.forEach(row => {
                 const billNo = row.querySelector('.bill-number').textContent.toLowerCase();
-                if (billNo.includes(searchValue)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = billNo.includes(searchValue) ? '' : 'none';
             });
         });
     </script>
