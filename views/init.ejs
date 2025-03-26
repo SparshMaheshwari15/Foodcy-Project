@@ -1,14 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Init Verification</title>
+
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .card {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-control {
+            border-radius: 8px;
+        }
+        .btn-primary {
+            width: 100%;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <h2>Enter Password to Continue</h2>
-    <form action="/init" method="POST">
-        <input type="text" name="upperLimit" placeholder="Enter the upper limit" required value="999">
-        <input type="password" name="password" placeholder="Enter Init Password" required>
-        <button type="submit">Submit</button>
-    </form>
+
+    <div class="card bg-white">
+        <h3 class="text-center mb-4">🔒 Enter Password to Continue</h3>
+        <form action="/init" method="POST">
+            <div class="mb-3">
+                <label class="form-label">Upper Limit</label>
+                <input type="number" name="upperLimit" class="form-control" placeholder="Enter upper limit" required value="999">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Init Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Enter Init Password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
 </body>
 </html>
