@@ -60,51 +60,6 @@ app.use("/admin", require("./routes/routes.admin.js"));
 app.use("/auth", require("./routes/routes.auth.js"));
 app.use("/init", require("./routes/routes.init.js"));
 
-// Create Order - Prevents Duplicates
-// app.post('/create-order', async (req, res) => {
-//     const { billNo } = req.body;
-
-//     const existingOrder = await Order.findOne({ billNo });
-//     if (!existingOrder) {
-//         const newOrder = new Order({ billNo });
-//         await newOrder.save();
-//         io.emit('orderUpdate', { billNo, status: 'Pending' });
-//     }
-
-//     res.redirect('/admin');
-// });
-
-// Update Order Status
-app.post('/update-order', async (req, res) => {
-    const { billNo, status } = req.body;
-    const order = await Order.findOne({ billNo });
-    if (!order) {
-        req.flash("Enter correct order no.");
-        return res.send("Enter correct order no.")
-    }
-    const newStatus = status?.trim() || "";
-    console.log(newStatus);
-
-    const validStatuses = ["Pending", "Arrived", "Delivered"];
-    if (!validStatuses.includes(newStatus)) {
-        req.flash("error", "Enter correct status of the order no.", order);
-        return res.send("Enter correct status of the order no.");
-    }
-    else if (order) {
-        order.status = status;
-        await order.save();
-
-        // Emit WebSocket update to all clients
-        io.emit('orderUpdate', { billNo, status });
-        return res.send("Updating done");
-    }
-    else {
-        res.send("Some error occured");
-    }
-
-});
-
-
 // WebSocket Connection
 
 io.on("connection", (socket) => {
