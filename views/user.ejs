@@ -32,7 +32,7 @@
 
         // ✅ Always listen for updates
         socket.on("orderUpdate", (data) => {
-            console.log(`📩 Update received: ${data.billNo} → ${data.status}`);
+            // console.log(`📩 Update received: ${data.billNo} → ${data.status}`);
 
             // ✅ Only update if the user entered the same bill number
             if (data.billNo === currentBillNo) {

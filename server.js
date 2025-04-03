@@ -68,14 +68,14 @@ io.on("connection", (socket) => {
     // User requests the current order status
     socket.on("requestStatus", async (data) => {
         try {
-            console.log(`User requested status for Order ${data.billNo}`);
+            // console.log(`User requested status for Order ${data.billNo}`);
             const order = await Order.findOne({ billNo: data.billNo });
 
             if (order) {
-                console.log(`Sending current status: Order ${order.billNo} -> ${order.status}`);
+                // console.log(`Sending current status: Order ${order.billNo} -> ${order.status}`);
                 socket.emit("currentStatus", { billNo: order.billNo, status: order.status });
             } else {
-                console.log(`Order ${data.billNo} not found`);
+                // console.log(`Order ${data.billNo} not found`);
                 socket.emit("currentStatus", { billNo: data.billNo, status: "Not Found" });
             }
         } catch (error) {
@@ -96,12 +96,12 @@ io.on("connection", (socket) => {
             );
 
             if (!updatedOrder) {
-                console.log(`Order ${billNo} not found!`);
+                // console.log(`Order ${billNo} not found!`);
                 socket.emit("updateFailed", { message: "Order not found" });
                 return;
             }
 
-            console.log(`Order ${billNo} updated to ${status}`);
+            // console.log(`Order ${billNo} updated to ${status}`);
 
             // ✅ Emit the update to all connected users
             io.emit("orderUpdate", { billNo, status });
@@ -117,7 +117,7 @@ io.on("connection", (socket) => {
 
 
     socket.on("disconnect", () => {
-        console.log("A user disconnected");
+        // console.log("A user disconnected");
     });
 });
 
